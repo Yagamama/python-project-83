@@ -1,8 +1,8 @@
 install: 
 	pip install poetry 
+	pip install python3
 	pip install gunicorn
 	pip install flask
-	pip install dotenv
 
 dev:
 	poetry run flask --app page_analyzer:app run
