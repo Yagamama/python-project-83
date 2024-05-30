@@ -5,11 +5,11 @@ install:
 	pip install python-dotenv
 
 dev:
-	poetry run flask --app page_analyzer:app run --port 8000
+	poetry run flask --app page_analyzer:app run --port 10000
 
 lint:
 	poetry run flake8 page_analyzer
 
-port ?= 8000
+port ?= 10000
 start:
 	poetry run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app
