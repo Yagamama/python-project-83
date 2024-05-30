@@ -1,15 +1,14 @@
 install: 
 	pip install poetry 
-	pip install python3
 	pip install gunicorn
 	pip install flask
 
 dev:
-	poetry run flask --app page_analyzer:app run
+	poetry run flask --app page_analyzer:app run --port 8000
 
 lint:
 	poetry run flake8 page_analyzer
 
 port ?= 8000
 start:
-	poetry run gunicorn -w 5 -b 0.0.0.0:8000 page_analyzer:app
+	poetry run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app
