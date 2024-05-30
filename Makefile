@@ -1,6 +1,7 @@
 install: 
 	pip install poetry 
 	pip install gunicorn
+	pip install flask
 
 dev:
 	poetry run flask --app page_analyzer:app run
