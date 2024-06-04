@@ -10,6 +10,10 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
+gunicorn = "^22.0.0"
+psycopg2-binary = "^2.9.9"
+flask = "^3.0.3"
+dotenv = "^1.0.1"
 
 
 [build-system]

@@ -3,6 +3,7 @@ install:
 	pip install gunicorn
 	pip install flask
 	pip install python-dotenv
+	pip install psycopg2-binary
 
 dev:
 	poetry run flask --app page_analyzer:app run --port 8000
@@ -14,5 +15,8 @@ port ?= 8000
 start:
 	poetry run gunicorn -w 5 -b 0.0.0.0:$(PORT) page_analyzer:app
 
-mypages:
+build:
+	./build.sh
+
+pages:
 	poetry run flask --app page_analyzer:app --debug run --port 8000
