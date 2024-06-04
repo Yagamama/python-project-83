@@ -41,8 +41,9 @@ def urls():
 
 @app.get('/urls')
 def urls_get():
+    cur.execute ('SELECT * FROM urls;')
     msg = get_flashed_messages(with_categories=True)
-    return render_template('all.html', messages=msg) 
+    return render_template('all.html', messages=msg, rows=cur.fetchall()) 
 
 
 @app.get('/urls/<int:id>')

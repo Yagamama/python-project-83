@@ -4,6 +4,7 @@ install:
 	pip install flask
 	pip install python-dotenv
 	pip install psycopg2-binary
+	pip install validators
 
 dev:
 	poetry run flask --app page_analyzer:app run --port 8000
