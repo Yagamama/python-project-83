@@ -41,7 +41,8 @@
                     <tr>
                         <td>{{ row[0] }}</td>
                         <td>{{ row[1] }}</td>
-                        <td>{{ row[2] }}</td>
+                        <td>{{ row[2] if row[2] }}</td>
+                        <td>{{ row[3] if row[3] }}</td>
                     </tr>
                 {% endfor %}
                 {% endif %}
