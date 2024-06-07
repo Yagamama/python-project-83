@@ -5,6 +5,7 @@ import psycopg2
 import datetime
 import validators
 from urllib.parse import urlparse, urlunparse
+import requests
 
 app = Flask(__name__)
 load_dotenv()
@@ -16,6 +17,7 @@ cur = conn.cursor()
 FLASH_EXIST = 'Страница уже существует'
 FLASH_ADDED = 'Страница успешно добавлена'
 FLASH_CHECKED = 'Страница успешно проверена'
+FLASH_EXCEPTION = 'Произошла ошибка при проверке'
 
 @app.route('/')
 def main():
@@ -45,16 +47,9 @@ def urls():
 
 @app.get('/urls')
 def urls_get():
-    cur.execute ('''SELECT urls.id,
-                    urls.name,
-                    url_checks.created_at,
-                    status_code
-                 FROM urls 
-                 LEFT JOIN url_checks
-                 ON urls.id = url_checks.url_id
-                 ORDER BY url_checks.created_at DESC NULLS LAST, name ASC;''')
+    rows = get_all_urls()
     msg = get_flashed_messages(with_categories=True)
-    return render_template('all.html', messages=msg, rows=cur.fetchall()) 
+    return render_template('all.html', messages=msg, rows=rows) 
 
 
 @app.get('/urls/<int:id>')
@@ -67,12 +62,18 @@ def url_id(id):
                            id=id,
                            name=data[1],
                            created_at=data[2],
-                           rows = checks)
+                           rows=checks)
 
 
 @app.post('/urls/<int:id>/checks')
 def check_url(id):
-    add_new_check(id)
+    url = get_data(id)[1]
+    try:
+        r = requests.get(url)
+    except Exception:
+        flash(FLASH_EXCEPTION, 'alert-danger')
+        return redirect(url_for('url_id', id=id), 302)
+    add_new_check(id, r.status_code)
     flash(FLASH_CHECKED, 'alert-info')
     return redirect(url_for('url_id', id=id), 302)
 
@@ -106,9 +107,12 @@ def get_data(id):
     return cur.fetchone()
 
 
-def add_new_check(id):
-    cur.execute('INSERT INTO url_checks (url_id, created_at) VALUES (%s, %s);', 
-                (id, datetime.datetime.now().date()))
+def add_new_check(id, status):
+    cur.execute('''INSERT INTO url_checks (url_id,
+                        created_at,
+                        status_code)
+                VALUES (%s, %s, %s);''', 
+                (id, datetime.datetime.now().date(), status))
     conn.commit()
     return
 
@@ -126,6 +130,31 @@ def get_checks(id):
                 WHERE urls.id = %s;""", (id,))
     return cur.fetchall()
 
-# validators = "^0.20.0"
-# requests = "^2.31.0"
-#https://23422222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222.kk22222.com
+
+def get_all_urls():
+    cur.execute ('''SELECT urls.id, 
+                    name,
+                    (SELECT MAX(id)
+                        FROM url_checks
+                        WHERE url_checks.url_id = urls.id
+                    ) AS last_id,
+                    (SELECT status_code 
+                        FROM url_checks
+                        WHERE id = 
+                        (SELECT MAX(id)
+                            FROM url_checks 
+                            WHERE url_checks.url_id = urls.id
+                        )
+                    ) AS status,
+                    (SELECT created_at 
+                        FROM url_checks
+                        WHERE id = 
+                        (SELECT MAX(id)
+                            FROM url_checks 
+                            WHERE url_checks.url_id = urls.id
+                        )
+                    ) AS last_date
+                    FROM urls
+                    ORDER BY last_id DESC NULLS LAST, name;
+                    ''')
+    return cur.fetchall()
