@@ -6,6 +6,7 @@ import datetime
 import validators
 from urllib.parse import urlparse, urlunparse
 import requests
+from bs4 import BeautifulSoup
 
 app = Flask(__name__)
 load_dotenv()
@@ -73,7 +74,8 @@ def check_url(id):
     except Exception:
         flash(FLASH_EXCEPTION, 'alert-danger')
         return redirect(url_for('url_id', id=id), 302)
-    add_new_check(id, r.status_code)
+    tags = find_tags(url)
+    add_new_check(id, r.status_code, tags['title'], tags['h1'], tags['desc'])
     flash(FLASH_CHECKED, 'alert-info')
     return redirect(url_for('url_id', id=id), 302)
 
@@ -107,12 +109,15 @@ def get_data(id):
     return cur.fetchone()
 
 
-def add_new_check(id, status):
+def add_new_check(id, status, title, h1, desc):
     cur.execute('''INSERT INTO url_checks (url_id,
                         created_at,
-                        status_code)
-                VALUES (%s, %s, %s);''', 
-                (id, datetime.datetime.now().date(), status))
+                        status_code,
+                        title,
+                        h1, 
+                        description)
+                VALUES (%s, %s, %s, %s, %s, %s);''', 
+                (id, datetime.datetime.now().date(), status, title, h1, desc))
     conn.commit()
     return
 
@@ -127,7 +132,8 @@ def get_checks(id):
                 FROM url_checks
                 INNER JOIN urls
                 ON urls.id = url_checks.url_id
-                WHERE urls.id = %s;""", (id,))
+                WHERE urls.id = %s
+                ORDER BY url_checks.id DESC;""", (id,))
     return cur.fetchall()
 
 
@@ -158,3 +164,25 @@ def get_all_urls():
                     ORDER BY last_id DESC NULLS LAST, name;
                     ''')
     return cur.fetchall()
+
+def find_tags(url):
+    r = requests.get(url).text
+    soup = BeautifulSoup(r, 'html.parser')
+    title = None
+    h1 = None
+    desc = None
+    try:
+        title = soup.title.text
+    except Exception:
+        pass
+    try:
+        h1 = soup.h1.text
+    except Exception:
+        pass
+    meta = soup.select('meta[name="description"]')
+    for attr in meta:
+        print("atr =", attr.get('content')) 
+        desc = attr.get('content')
+    return {'title': title,
+            'h1': h1,
+            'desc': desc}
