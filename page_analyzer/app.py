@@ -1,4 +1,5 @@
-from flask import *
+from flask import Flask, redirect, render_template, request, \
+    flash, get_flashed_messages, url_for
 from dotenv import load_dotenv
 import os
 import psycopg2
@@ -19,6 +20,7 @@ FLASH_EXIST = 'Страница уже существует'
 FLASH_ADDED = 'Страница успешно добавлена'
 FLASH_CHECKED = 'Страница успешно проверена'
 FLASH_EXCEPTION = 'Произошла ошибка при проверке'
+
 
 @app.route('/')
 def main():
@@ -50,7 +52,7 @@ def urls():
 def urls_get():
     rows = get_all_urls()
     msg = get_flashed_messages(with_categories=True)
-    return render_template('all.html', messages=msg, rows=rows) 
+    return render_template('all.html', messages=msg, rows=rows)
 
 
 @app.get('/urls/<int:id>')
@@ -99,13 +101,15 @@ def get_id(data):
 
 
 def add_to_db(url, created_at):
-    cur.execute("INSERT INTO urls (name, created_at) VALUES (%s, %s);", (url, created_at))
+    cur.execute("""INSERT INTO urls (name, created_at)
+                VALUES (%s, %s);""", (url, created_at))
     conn.commit()
     return get_id(url)
 
 
 def get_data(id):
-    cur.execute('SELECT * FROM urls WHERE id=%s ORDER BY created_at DESC, name ASC;', (id,))
+    cur.execute('''SELECT * FROM urls WHERE id=%s
+                ORDER BY created_at DESC, name ASC;''', (id,))
     return cur.fetchone()
 
 
@@ -114,9 +118,9 @@ def add_new_check(id, status, title, h1, desc):
                         created_at,
                         status_code,
                         title,
-                        h1, 
+                        h1,
                         description)
-                VALUES (%s, %s, %s, %s, %s, %s);''', 
+                VALUES (%s, %s, %s, %s, %s, %s);''',
                 (id, datetime.datetime.now().date(), status, title, h1, desc))
     conn.commit()
     return
@@ -138,25 +142,25 @@ def get_checks(id):
 
 
 def get_all_urls():
-    cur.execute ('''SELECT urls.id, 
+    cur.execute('''SELECT urls.id,
                     name,
                     (SELECT MAX(id)
                         FROM url_checks
                         WHERE url_checks.url_id = urls.id
                     ) AS last_id,
-                    (SELECT status_code 
+                    (SELECT status_code
                         FROM url_checks
-                        WHERE id = 
+                        WHERE id =
                         (SELECT MAX(id)
-                            FROM url_checks 
+                            FROM url_checks
                             WHERE url_checks.url_id = urls.id
                         )
                     ) AS status,
-                    (SELECT created_at 
+                    (SELECT created_at
                         FROM url_checks
-                        WHERE id = 
+                        WHERE id =
                         (SELECT MAX(id)
-                            FROM url_checks 
+                            FROM url_checks
                             WHERE url_checks.url_id = urls.id
                         )
                     ) AS last_date
@@ -164,6 +168,7 @@ def get_all_urls():
                     ORDER BY last_id DESC NULLS LAST, name;
                     ''')
     return cur.fetchall()
+
 
 def find_tags(url):
     r = requests.get(url).text
@@ -181,7 +186,7 @@ def find_tags(url):
         pass
     meta = soup.select('meta[name="description"]')
     for attr in meta:
-        print("atr =", attr.get('content')) 
+        print("atr =", attr.get('content'))
         desc = attr.get('content')
     return {'title': title,
             'h1': h1,

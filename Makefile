@@ -7,6 +7,7 @@ install:
 	pip install validators
 	pip install requests
 	pip install beautifulsoup4
+	pip install flake8
 
 dev:
 	poetry run flask --app page_analyzer:app run --port 8000
