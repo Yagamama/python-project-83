@@ -6,6 +6,7 @@ install:
 	pip install psycopg2-binary
 	pip install validators
 	pip install requests
+	pip install beautifulsoup4
 
 dev:
 	poetry run flask --app page_analyzer:app run --port 8000
