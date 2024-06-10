@@ -1,5 +1,6 @@
 install: 
 	pip install poetry 
+	pip install python-dotenv
 
 dev:
 	poetry run flask --app page_analyzer:app run --port 8000
