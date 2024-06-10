@@ -1,6 +1,13 @@
 install: 
 	pip install poetry 
+	pip install gunicorn
+	pip install flask
 	pip install python-dotenv
+	pip install psycopg2-binary
+	pip install validators
+	pip install requests
+	pip install beautifulsoup4
+	pip install flake8
 
 dev:
 	poetry run flask --app page_analyzer:app run --port 8000

@@ -76,6 +76,9 @@ def check_url(id):
     except Exception:
         flash(FLASH_EXCEPTION, 'alert-danger')
         return redirect(url_for('url_id', id=id), 302)
+    if r.status_code != 200:
+        flash(FLASH_EXCEPTION, 'alert-danger')
+        return redirect(url_for('url_id', id=id), 302)
     tags = find_tags(url)
     add_new_check(id, r.status_code, tags['title'], tags['h1'], tags['desc'])
     flash(FLASH_CHECKED, 'alert-info')
