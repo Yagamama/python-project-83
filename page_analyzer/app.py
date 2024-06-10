@@ -1,6 +1,5 @@
 from flask import Flask, redirect, render_template, request, \
     flash, get_flashed_messages, url_for
-from dotenv import load_dotenv
 import os
 import psycopg2
 import datetime
@@ -8,6 +7,7 @@ import validators
 from urllib.parse import urlparse, urlunparse
 import requests
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 load_dotenv()
