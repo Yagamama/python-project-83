@@ -145,30 +145,21 @@ def get_checks(id):
 
 
 def get_all_urls():
-    cur.execute('''SELECT urls.id,
+    cur.execute('''CREATE VIEW filter AS 
+                SELECT url_id, MAX(id) AS max_id FROM url_checks
+                GROUP BY url_id;
+
+                SELECT urls.id,
                     name,
-                    (SELECT MAX(id)
-                        FROM url_checks
-                        WHERE url_checks.url_id = urls.id
-                    ) AS last_id,
-                    (SELECT status_code
-                        FROM url_checks
-                        WHERE id =
-                        (SELECT MAX(id)
-                            FROM url_checks
-                            WHERE url_checks.url_id = urls.id
-                        )
-                    ) AS status,
-                    (SELECT created_at
-                        FROM url_checks
-                        WHERE id =
-                        (SELECT MAX(id)
-                            FROM url_checks
-                            WHERE url_checks.url_id = urls.id
-                        )
-                    ) AS last_date
-                    FROM urls
-                    ORDER BY last_id DESC NULLS LAST, name;
+                    max_id,
+                    status_code,
+                    url_checks.created_at
+                FROM urls
+                LEFT JOIN filter
+                ON urls.id = filter.url_id
+                LEFT JOIN url_checks
+                ON url_checks.id = filter.max_id
+                ORDER BY url_checks.created_at DESC NULLS LAST, name;
                     ''')
     return cur.fetchall()
 
