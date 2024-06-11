@@ -1,5 +1,5 @@
 install: 
-	pip install poetry 
+	poetry install
 	pip install gunicorn
 	pip install flask
 	pip install python-dotenv
