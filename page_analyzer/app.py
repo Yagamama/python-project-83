@@ -124,7 +124,12 @@ def add_new_check(id, status, title, h1, desc):
                         h1,
                         description)
                 VALUES (%s, %s, %s, %s, %s, %s);''',
-                (id, datetime.datetime.now().date(), status, title, h1, desc))
+                (id,
+                 datetime.datetime.now().date(),
+                 status,
+                 title[:255],
+                 h1[:255],
+                 desc[:255]))
     conn.commit()
     return
 
@@ -145,7 +150,10 @@ def get_checks(id):
 
 
 def get_all_urls():
-    cur.execute('''CREATE VIEW filter AS 
+    cur.execute('''
+                DROP VIEW IF EXISTS filter;
+
+                CREATE VIEW filter AS 
                 SELECT url_id, MAX(id) AS max_id FROM url_checks
                 GROUP BY url_id;
 
