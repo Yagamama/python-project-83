@@ -153,7 +153,7 @@ def get_all_urls():
     cur.execute('''
                 DROP VIEW IF EXISTS filter;
 
-                CREATE VIEW filter AS 
+                CREATE VIEW filter AS
                 SELECT url_id, MAX(id) AS max_id FROM url_checks
                 GROUP BY url_id;
 
