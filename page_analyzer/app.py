@@ -127,9 +127,9 @@ def add_new_check(id, status, title, h1, desc):
                 (id,
                  datetime.datetime.now().date(),
                  status,
-                 title[:255],
-                 h1[:255],
-                 desc[:255]))
+                 title[:255] if title else None,
+                 h1[:255] if h1 else None,
+                 desc[:255] if desc else None))
     conn.commit()
     return
 
