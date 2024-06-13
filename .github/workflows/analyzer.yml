@@ -5,5 +5,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: pip install poetry
+      - run: pipx install poetry 
       - run: make install
+      - run: poetry add --group=dev flake8
