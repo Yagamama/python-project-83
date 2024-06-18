@@ -1,4 +1,4 @@
 *.env
 *copy*
 any.py
-page_analyzer/__pycache__/*.*
+dist/
