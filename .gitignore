@@ -1,3 +1,4 @@
 *.env
 *copy*
 any.py
+*.pyc

@@ -188,7 +188,6 @@ def find_tags(url):
         pass
     meta = soup.select('meta[name="description"]')
     for attr in meta:
-        print("atr =", attr.get('content'))
         desc = attr.get('content')
     return {'title': title,
             'h1': h1,
