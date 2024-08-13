@@ -35,7 +35,7 @@ def urls():
     if errors:
         flash(errors[0], 'alert-danger')
         msg = get_flashed_messages(with_categories=True)
-        return render_template('index.html', messages=msg)
+        return render_template('index.html', messages=msg), 422
     o = urlparse(url)
     normalized_url = str(urlunparse([o.scheme, o.hostname, '', '', '', '']))
     page_id = get_id(normalized_url)
