@@ -99,7 +99,10 @@ def validate_url(data):
 def get_id(data):
     cur.execute("SELECT * FROM urls WHERE name=%s;", (data,))
     if cur.rowcount > 0:
-        return cur.fetchone()[0]
+        result = cur.fetchone()[0]
+        conn.commit()
+        return result
+    conn.commit()
     return None
 
 
@@ -113,7 +116,9 @@ def add_to_db(url, created_at):
 def get_data(id):
     cur.execute('''SELECT * FROM urls WHERE id=%s
                 ORDER BY created_at DESC, name ASC;''', (id,))
-    return cur.fetchone()
+    result = cur.fetchone()
+    conn.commit()
+    return result
 
 
 def add_new_check(id, status, title, h1, desc):
@@ -146,7 +151,9 @@ def get_checks(id):
                 ON urls.id = url_checks.url_id
                 WHERE urls.id = %s
                 ORDER BY url_checks.id DESC;""", (id,))
-    return cur.fetchall()
+    result = cur.fetchall()
+    conn.commit()
+    return result
 
 
 def get_all_urls():
@@ -169,7 +176,9 @@ def get_all_urls():
                 ON url_checks.id = filter.max_id
                 ORDER BY url_checks.created_at DESC NULLS LAST, name;
                     ''')
-    return cur.fetchall()
+    result = cur.fetchall()
+    conn.commit()
+    return result
 
 
 def find_tags(url):
